@@ -17,7 +17,7 @@ public final class TaskMapper {
         e.setTitle(task.getTitle());
         e.setDescription(task.getDescription());
         e.setStatus(task.getStatus());
-        // Domain -> Entity: OffsetDateTime -> LocalDateTime (UTC)
+        
         OffsetDateTime createdAt = task.getCreatedAt();
         OffsetDateTime updatedAt = task.getUpdatedAt();
         e.setCreatedAt(createdAt != null ? createdAt.withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime() : null);
@@ -32,7 +32,7 @@ public final class TaskMapper {
         t.setTitle(e.getTitle());
         t.setDescription(e.getDescription());
         t.setStatus(e.getStatus());
-        // Entity -> Domain: LocalDateTime -> OffsetDateTime (UTC)
+        
         LocalDateTime createdAt = e.getCreatedAt();
         LocalDateTime updatedAt = e.getUpdatedAt();
         t.setCreatedAt(createdAt != null ? createdAt.atOffset(ZoneOffset.UTC) : null);

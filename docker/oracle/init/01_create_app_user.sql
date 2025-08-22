@@ -1,12 +1,4 @@
--- Create dedicated application user and grant privileges
--- IMPORTANT: Do not use SYSTEM schema for application tables.
-
 WHENEVER SQLERROR EXIT SQL.SQLCODE;
-
--- Variables (edit if you change ENV names)
--- Using literals as this runs inside container init
-
--- Switch to target PDB
 ALTER SESSION SET CONTAINER = XEPDB1;
 
 CREATE USER TM_APP IDENTIFIED BY tm_app_password

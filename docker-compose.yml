@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     depends_on:
       oracle:
-        condition: service_healthy   # espera até o Oracle estar saudável
+        condition: service_healthy   
     environment:
       DB_URL: jdbc:oracle:thin:@//oracle:1521/XEPDB1
       DB_USERNAME: TM_APP
@@ -41,7 +41,7 @@ services:
     networks:
       - ci-net
     healthcheck:
-      test: ["CMD", "healthcheck.sh"] # já incluso na imagem
+      test: ["CMD", "healthcheck.sh"] 
       interval: 10s
       timeout: 5s
       retries: 10

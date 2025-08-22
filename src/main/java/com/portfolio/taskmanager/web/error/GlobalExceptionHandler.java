@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(Exception ex, HttpServletRequest request) {
-        // Log stacktrace to help diagnose issues like springdoc generation errors
+        
         log.error("Unhandled exception at {} {}", request.getMethod(), request.getRequestURI(), ex);
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor");
         pd.setTitle("Internal Server Error");

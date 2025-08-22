@@ -27,7 +27,7 @@ public class JwtTokenProvider {
         if (secret == null || secret.isBlank()) {
             throw new IllegalStateException("JWT secret is not configured (jwt.secret)");
         }
-        // Accept base64 secrets; if not base64, derive a 256-bit key from the text using SHA-256
+        
         try {
             keyBytes = Decoders.BASE64.decode(secret);
         } catch (RuntimeException e) {

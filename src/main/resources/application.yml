@@ -50,7 +50,7 @@ logging:
     org.springframework.web: DEBUG
 
 jwt:
-  # Use a strong secret in production; can be plain text or base64
+  
   secret: ${JWT_SECRET:change-this-dev-secret-please}
-  # 1 day in milliseconds
+  
   expiration-millis: ${JWT_EXPIRATION_MILLIS:86400000}

@@ -14,7 +14,7 @@ public abstract class OracleTestContainer {
 
     private static final int ORACLE_PORT = 1521;
 
-    // gvenzl/oracle-xe image (lightweight) suitable for tests
+    
     public static final GenericContainer<?> ORACLE = new GenericContainer<>("gvenzl/oracle-xe:21-slim")
             .withEnv("ORACLE_PASSWORD", "oracle_password")
             .withExposedPorts(ORACLE_PORT)
@@ -31,11 +31,11 @@ public abstract class OracleTestContainer {
     static void registerDataSource(DynamicPropertyRegistry registry) {
         String host = ORACLE.getHost();
         Integer port = ORACLE.getMappedPort(ORACLE_PORT);
-        String url = String.format("jdbc:oracle:thin:@//%s:%d/XEPDB1", host, port);
+        String url = String.format("jdbc:oracle:thin:@
         registry.add("spring.datasource.url", () -> url);
         registry.add("spring.datasource.username", () -> "system");
         registry.add("spring.datasource.password", () -> "oracle_password");
-        // Keep Flyway enabled to run migrations against the container DB
+        
         registry.add("spring.flyway.enabled", () -> true);
     }
 }

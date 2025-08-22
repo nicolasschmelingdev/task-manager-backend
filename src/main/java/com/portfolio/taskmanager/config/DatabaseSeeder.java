@@ -27,8 +27,8 @@ public class DatabaseSeeder {
 
     @Transactional
     void seedTestUser(UserService userService, UserSpringRepository userRepo) {
-        final String username = "teste"; // requested test user
-        final String password = "12345"; // requested password
+        final String username = "teste"; 
+        final String password = "12345"; 
         if (userRepo.existsByUsername(username)) {
             log.info("Seed: user '{}' already exists - skipping", username);
             return;

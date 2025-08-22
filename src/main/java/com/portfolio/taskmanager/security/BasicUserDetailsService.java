@@ -11,9 +11,9 @@ import java.util.Map;
 
 public class BasicUserDetailsService implements UserDetailsService {
 
-    // Simple in-memory users for demo. Replace with DB-backed implementation later.
+    
     private final Map<String, String> users = Map.of(
-        "admin", "$2a$10$Q1b6zKjJz4F1y3t1a9mC7eN9b9mC7eN9b9mC7eN9b9mC7eN9b9mC7" // bcrypt for "admin"? Placeholder not valid.
+        "admin", "$2a$10$Q1b6zKjJz4F1y3t1a9mC7eN9b9mC7eN9b9mC7eN9b9mC7eN9b9mC7" 
     );
 
     @Override

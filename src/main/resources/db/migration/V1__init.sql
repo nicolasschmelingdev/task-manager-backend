@@ -1,4 +1,4 @@
--- Flyway baseline migration: create users and tasks tables (Oracle)
+
 
 CREATE TABLE users (
     id VARCHAR2(36 CHAR) NOT NULL,
@@ -21,5 +21,5 @@ CREATE TABLE tasks (
     CONSTRAINT pk_tasks PRIMARY KEY (id)
 );
 
--- Indexes (optional performance)
+
 CREATE INDEX idx_tasks_status ON tasks (status);
