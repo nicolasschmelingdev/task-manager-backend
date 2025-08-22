@@ -10,29 +10,29 @@ public final class TaskWebMapper {
 
     public static Task toDomain(TaskCreateRequest req) {
         Task t = new Task();
-        t.setTitle(req.getTitle());
-        t.setDescription(req.getDescription());
-        t.setStatus(req.getStatus());
+        t.setTitle(req.title());
+        t.setDescription(req.description());
+        t.setStatus(req.status());
         return t;
         }
 
     public static Task toDomain(TaskUpdateRequest req) {
         Task t = new Task();
-        t.setTitle(req.getTitle());
-        t.setDescription(req.getDescription());
-        t.setStatus(req.getStatus());
+        t.setTitle(req.title());
+        t.setDescription(req.description());
+        t.setStatus(req.status());
         return t;
     }
 
     public static TaskResponse toResponse(Task t) {
-        TaskResponse r = new TaskResponse();
-        r.setId(t.getId());
-        r.setTitle(t.getTitle());
-        r.setDescription(t.getDescription());
-        r.setStatus(t.getStatus());
-        r.setCreatedAt(t.getCreatedAt());
-        r.setUpdatedAt(t.getUpdatedAt());
-        r.setUpdatedBy(t.getUpdatedBy());
-        return r;
+        return new TaskResponse(
+                t.getId(),
+                t.getTitle(),
+                t.getDescription(),
+                t.getStatus(),
+                t.getCreatedAt(),
+                t.getUpdatedAt(),
+                t.getUpdatedBy()
+        );
     }
 }

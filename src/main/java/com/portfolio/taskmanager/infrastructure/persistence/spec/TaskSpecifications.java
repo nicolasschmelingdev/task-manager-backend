@@ -15,7 +15,7 @@ public final class TaskSpecifications {
                 TaskStatus enumStatus = TaskStatus.valueOf(status.toUpperCase());
                 return cb.equal(root.get("status"), enumStatus);
             } catch (IllegalArgumentException ex) {
-                // invalid status filter -> no results
+                
                 return cb.disjunction();
             }
         };

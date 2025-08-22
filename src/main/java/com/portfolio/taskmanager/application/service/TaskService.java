@@ -48,7 +48,7 @@ public class TaskService {
     }
 
     public void delete(UUID id) {
-        get(id); // ensure exists
+        get(id); 
         repository.deleteById(id);
     }
 }

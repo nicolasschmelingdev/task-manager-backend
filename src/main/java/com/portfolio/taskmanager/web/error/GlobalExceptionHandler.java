@@ -6,7 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -23,70 +23,64 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ProblemDetail handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         List<FieldErrorItem> errors = new ArrayList<>();
         for (FieldError fe : ex.getBindingResult().getFieldErrors()) {
             errors.add(new FieldErrorItem(fe.getField(), fe.getDefaultMessage()));
         }
-        ApiError body = new ApiError(HttpStatus.BAD_REQUEST.value(), "Dados inválidos", errors,
-                OffsetDateTime.now(), request.getRequestURI());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Dados inválidos");
+        pd.setTitle("Validation Failed");
+        pd.setProperty("errors", errors);
+        pd.setProperty("path", request.getRequestURI());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex, HttpServletRequest request) {
         List<FieldErrorItem> errors = new ArrayList<>();
         for (ConstraintViolation<?> cv : ex.getConstraintViolations()) {
             String field = cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : null;
             errors.add(new FieldErrorItem(field, cv.getMessage()));
         }
-        ApiError body = new ApiError(HttpStatus.BAD_REQUEST.value(), "Dados inválidos", errors,
-                OffsetDateTime.now(), request.getRequestURI());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Dados inválidos");
+        pd.setTitle("Constraint Violation");
+        pd.setProperty("errors", errors);
+        pd.setProperty("path", request.getRequestURI());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Object> handleNotFound(NoSuchElementException ex, HttpServletRequest request) {
-        ApiError body = new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), List.of(),
-                OffsetDateTime.now(), request.getRequestURI());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    public ProblemDetail handleNotFound(NoSuchElementException ex, HttpServletRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setTitle("Not Found");
+        pd.setProperty("errors", List.of());
+        pd.setProperty("path", request.getRequestURI());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setTitle("Invalid Argument");
+        pd.setProperty("errors", List.of());
+        pd.setProperty("path", request.getRequestURI());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleGeneric(Exception ex, HttpServletRequest request) {
-        // Log stacktrace to help diagnose issues like springdoc generation errors
+    public ProblemDetail handleGeneric(Exception ex, HttpServletRequest request) {
+        
         log.error("Unhandled exception at {} {}", request.getMethod(), request.getRequestURI(), ex);
-        ApiError body = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Erro interno do servidor", List.of(),
-                OffsetDateTime.now(), request.getRequestURI());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
-    }
-
-    public static class ApiError {
-        private int statusCode;
-        private String message;
-        private List<FieldErrorItem> errors;
-        private OffsetDateTime timestamp;
-        private String path;
-
-        public ApiError(int statusCode, String message, List<FieldErrorItem> errors, OffsetDateTime timestamp, String path) {
-            this.statusCode = statusCode;
-            this.message = message;
-            this.errors = errors;
-            this.timestamp = timestamp;
-            this.path = path;
-        }
-
-        public int getStatusCode() { return statusCode; }
-        public String getMessage() { return message; }
-        public List<FieldErrorItem> getErrors() { return errors; }
-        public OffsetDateTime getTimestamp() { return timestamp; }
-        public String getPath() { return path; }
-
-        public void setStatusCode(int statusCode) { this.statusCode = statusCode; }
-        public void setMessage(String message) { this.message = message; }
-        public void setErrors(List<FieldErrorItem> errors) { this.errors = errors; }
-        public void setTimestamp(OffsetDateTime timestamp) { this.timestamp = timestamp; }
-        public void setPath(String path) { this.path = path; }
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor");
+        pd.setTitle("Internal Server Error");
+        pd.setProperty("errors", List.of());
+        pd.setProperty("path", request.getRequestURI());
+        pd.setProperty("timestamp", OffsetDateTime.now());
+        return pd;
     }
 
     public static class FieldErrorItem {
