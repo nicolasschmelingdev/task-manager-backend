@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  oracle:
+    image: gvenzl/oracle-xe:21
+    container_name: oracle-xe
+    restart: unless-stopped
+    environment:
+      ORACLE_PASSWORD: "oracle_password"   # senha do SYS e SYSTEM
+      ORACLE_DATABASE: "XEPDB1"            # nome do banco (PDB)
+      ORACLE_CHARACTERSET: "AL32UTF8"
+    ports:
+      - "1521:1521"   # Oracle Listener
+      - "5500:5500"   # EM Express
+    volumes:
+      - oracle-data:/opt/oracle/oradata   # persistência dos dados
+      - ./init-app-user.sql:/docker-entrypoint-initdb.d/init-app-user.sql
+    networks:
+      - ci-net
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: unless-stopped
+    user: "0:0"  # root para simplificar permissões
+    environment:
+      JAVA_OPTS: "-Djava.util.logging.config.file=/var/jenkins_home/log.properties"
+    ports:
+      - "8080:8080"   # Jenkins UI
+      - "50000:50000" # JNLP agents
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      # - /var/run/docker.sock:/var/run/docker.sock
+      # - /usr/bin/docker:/usr/bin/docker
+    networks:
+      - ci-net
+
+volumes:
+  oracle-data:
+  jenkins-home:
+
+networks:
+  ci-net:
+    driver: bridge
