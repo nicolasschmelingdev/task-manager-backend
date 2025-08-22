@@ -25,8 +25,42 @@ public final class TaskSpecifications {
         return (root, query, cb) -> {
             if (search == null || search.isBlank()) return cb.conjunction();
             String pattern = "%" + search.trim().toLowerCase() + "%";
-            Predicate title = cb.like(cb.lower(root.get("title")), pattern);
-            Predicate description = cb.like(cb.lower(root.get("description")), pattern);
+            // Use DBMS_LOB.SUBSTR and force String by concatenating with empty string
+            Predicate title = cb.like(
+                    cb.function(
+                            "LOWER",
+                            String.class,
+                            cb.concat(
+                                    cb.function(
+                                            "DBMS_LOB.SUBSTR",
+                                            String.class,
+                                            root.get("title"),
+                                            cb.literal(4000),
+                                            cb.literal(1)
+                                    ),
+                                    ""
+                            )
+                    ),
+                    pattern
+            );
+            
+            Predicate description = cb.like(
+                    cb.function(
+                            "LOWER",
+                            String.class,
+                            cb.concat(
+                                    cb.function(
+                                            "DBMS_LOB.SUBSTR",
+                                            String.class,
+                                            root.get("description"),
+                                            cb.literal(4000),
+                                            cb.literal(1)
+                                    ),
+                                    ""
+                            )
+                    ),
+                    pattern
+            );
             return cb.or(title, description);
         };
     }
