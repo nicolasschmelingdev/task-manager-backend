@@ -41,7 +41,6 @@ class UserRegistrationIT extends OracleTestContainer {
         assertThat(body.get("username")).isEqualTo(username);
         assertThat(body.get("role")).isEqualTo("USER");
 
-        
         Map<String, String> login = Map.of("username", username, "password", "123456");
         ResponseEntity<Map> loginResp = rest.postForEntity(url("/api/auth/login"), login, Map.class);
         assertThat(loginResp.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -50,6 +49,6 @@ class UserRegistrationIT extends OracleTestContainer {
     }
 
     private String url(String path) {
-        return "http:
+        return "http://localhost:" + port + path;
     }
 }

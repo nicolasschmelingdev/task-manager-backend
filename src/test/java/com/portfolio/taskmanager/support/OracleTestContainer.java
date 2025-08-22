@@ -31,7 +31,7 @@ public abstract class OracleTestContainer {
     static void registerDataSource(DynamicPropertyRegistry registry) {
         String host = ORACLE.getHost();
         Integer port = ORACLE.getMappedPort(ORACLE_PORT);
-        String url = String.format("jdbc:oracle:thin:@
+        String url = String.format("jdbc:oracle:thin:@//%s:%d/XEPDB1", host, port);
         registry.add("spring.datasource.url", () -> url);
         registry.add("spring.datasource.username", () -> "system");
         registry.add("spring.datasource.password", () -> "oracle_password");
