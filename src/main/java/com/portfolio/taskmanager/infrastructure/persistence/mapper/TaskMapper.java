@@ -3,6 +3,9 @@ package com.portfolio.taskmanager.infrastructure.persistence.mapper;
 import com.portfolio.taskmanager.domain.model.Task;
 import com.portfolio.taskmanager.infrastructure.persistence.entity.TaskEntity;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 public final class TaskMapper {
@@ -14,8 +17,11 @@ public final class TaskMapper {
         e.setTitle(task.getTitle());
         e.setDescription(task.getDescription());
         e.setStatus(task.getStatus());
-        e.setCreatedAt(task.getCreatedAt());
-        e.setUpdatedAt(task.getUpdatedAt());
+        // Domain -> Entity: OffsetDateTime -> LocalDateTime (UTC)
+        OffsetDateTime createdAt = task.getCreatedAt();
+        OffsetDateTime updatedAt = task.getUpdatedAt();
+        e.setCreatedAt(createdAt != null ? createdAt.withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime() : null);
+        e.setUpdatedAt(updatedAt != null ? updatedAt.withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime() : null);
         e.setUpdatedBy(task.getUpdatedBy());
         return e;
     }
@@ -26,8 +32,11 @@ public final class TaskMapper {
         t.setTitle(e.getTitle());
         t.setDescription(e.getDescription());
         t.setStatus(e.getStatus());
-        t.setCreatedAt(e.getCreatedAt());
-        t.setUpdatedAt(e.getUpdatedAt());
+        // Entity -> Domain: LocalDateTime -> OffsetDateTime (UTC)
+        LocalDateTime createdAt = e.getCreatedAt();
+        LocalDateTime updatedAt = e.getUpdatedAt();
+        t.setCreatedAt(createdAt != null ? createdAt.atOffset(ZoneOffset.UTC) : null);
+        t.setUpdatedAt(updatedAt != null ? updatedAt.atOffset(ZoneOffset.UTC) : null);
         t.setUpdatedBy(e.getUpdatedBy());
         return t;
     }

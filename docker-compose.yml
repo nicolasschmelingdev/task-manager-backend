@@ -1,37 +1,64 @@
 version: "3.9"
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: task-manager-app
+    restart: unless-stopped
+    depends_on:
+      oracle:
+        condition: service_healthy   # espera até o Oracle estar saudável
+    environment:
+      DB_URL: jdbc:oracle:thin:@//oracle:1521/XEPDB1
+      DB_USERNAME: TM_APP
+      DB_PASSWORD: tm_app_password
+      SPRING_FLYWAY_ENABLED: true
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: TM_APP
+      SPRING_DATASOURCE_HIKARI_CONNECTION_TIMEOUT: 30000
+      JWT_SECRET: change-this-dev-secret-please
+      JWT_EXPIRATION_MILLIS: 86400000
+    ports:
+      - "8081:8081"
+    networks:
+      - ci-net
+
   oracle:
-    image: gvenzl/oracle-xe:21
+    image: gvenzl/oracle-free
     container_name: oracle-xe
     restart: unless-stopped
     environment:
-      ORACLE_PASSWORD: "oracle_password"   # senha do SYS e SYSTEM
-      ORACLE_DATABASE: "XEPDB1"            # nome do banco (PDB)
+      ORACLE_PASSWORD: "oracle_password"
+      ORACLE_DATABASE: "XEPDB1"
       ORACLE_CHARACTERSET: "AL32UTF8"
     ports:
-      - "1521:1521"   # Oracle Listener
-      - "5500:5500"   # EM Express
+      - "1521:1521"
     volumes:
-      - oracle-data:/opt/oracle/oradata   # persistência dos dados
-      - ./init-app-user.sql:/docker-entrypoint-initdb.d/init-app-user.sql
+      - oracle-data:/opt/oracle/oradata
+      - ./docker/oracle/init:/container-entrypoint-initdb.d:ro
     networks:
       - ci-net
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"] # já incluso na imagem
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
   jenkins:
     image: jenkins/jenkins:lts
     container_name: jenkins
     restart: unless-stopped
-    user: "0:0"  # root para simplificar permissões
+    user: "0:0"
     environment:
       JAVA_OPTS: "-Djava.util.logging.config.file=/var/jenkins_home/log.properties"
     ports:
-      - "8080:8080"   # Jenkins UI
-      - "50000:50000" # JNLP agents
+      - "8080:8080"
+      - "50000:50000"
     volumes:
       - jenkins-home:/var/jenkins_home
-      # - /var/run/docker.sock:/var/run/docker.sock
-      # - /usr/bin/docker:/usr/bin/docker
     networks:
       - ci-net
 

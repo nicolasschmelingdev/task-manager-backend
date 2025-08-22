@@ -7,6 +7,7 @@ import com.portfolio.taskmanager.web.dto.TaskCreateRequest;
 import com.portfolio.taskmanager.web.dto.TaskResponse;
 import com.portfolio.taskmanager.web.dto.TaskUpdateRequest;
 import com.portfolio.taskmanager.web.mapper.TaskWebMapper;
+import com.portfolio.taskmanager.security.SecurityUtils;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -54,7 +55,8 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskResponse> create(@Valid @RequestBody TaskCreateRequest request,
                                                UriComponentsBuilder uriBuilder) {
-        Task created = service.create(TaskWebMapper.toDomain(request), null);
+        String username = SecurityUtils.getCurrentUsername().orElse("system");
+        Task created = service.create(TaskWebMapper.toDomain(request), username);
         URI location = uriBuilder.path("/api/tasks/{id}").buildAndExpand(created.getId()).toUri();
         return ResponseEntity.created(location).body(TaskWebMapper.toResponse(created));
     }
@@ -62,7 +64,8 @@ public class TaskController {
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> update(@PathVariable("id") UUID id,
                                                @Valid @RequestBody TaskUpdateRequest request) {
-        Task updated = service.update(id, TaskWebMapper.toDomain(request), null);
+        String username = SecurityUtils.getCurrentUsername().orElse("system");
+        Task updated = service.update(id, TaskWebMapper.toDomain(request), username);
         return ResponseEntity.ok(TaskWebMapper.toResponse(updated));
     }
 
